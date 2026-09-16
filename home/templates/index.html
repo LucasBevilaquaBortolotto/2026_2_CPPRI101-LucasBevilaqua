@@ -10,23 +10,221 @@
     {% include "head.html" %}
 {% endblock %}
 <body>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Catálogo de Filmes</title>
 
-<div class="d-flex justify-content-center">
-<div class="card">
-  <div class="card-body">
-    <nav class="navbar bg-body-tertiary">
-  <div class="container-fluid">
-    <form class="d-flex" role="search">
-      <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
-      <button class="btn btn-outline-success" type="submit">Pesquisar</button>
-    </form>
+
+
+
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+
+    .search-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .card {
+      transition: transform 0.2s, box-shadow 0.2s;
+      height: 100%;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+    }
+
+    .card-img-top {
+      height: 280px;
+      object-fit: cover;
+    }
+  </style>
+</head>
+<body>
+
+
+
+  <div class="container py-5">
+
+
+    <div class="search-container mb-5">
+      <div class="input-group input-group-lg shadow-sm">
+        <input type="text"
+               class="form-control"
+               placeholder="Buscar filme"
+               aria-label="Buscar filme">
+        <button class="btn btn-primary px-4" type="button">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-search" viewBox="0 0 16 16">
+            <path d="M11.742 10.344a6.5 6.5 0 1 0-1.397 1.398h-.001q.044.06.098.115l3.85 3.85a1 1 0 0 0 1.415-1.414l-3.85-3.85a1 1 0 0 0-.115-.1zM12 6.5a5.5 5.5 0 1 1-11 0 5.5 5.5 0 0 1 11 0"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="fw-bold mb-0">Filmes em Destaque</h2>
+      <a href="#" class="btn btn-outline-primary btn-sm">Ver todos</a>
+    </div>
+
+
+    <div class="row g-4">
+
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm">
+          <img src="#" class="card-img-top" alt="Filme 1">
+          <div class="card-body">
+            <h5 class="card-title fw-semibold">Aventura Espacial</h5>
+            <p class="card-text text-muted small">Ação • 2024</p>
+            <a href="#" class="btn btn-outline-primary btn-sm w-100">Ver detalhes</a>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm">
+          <img src="#" class="card-img-top" alt="Filme 2">
+          <div class="card-body">
+            <h5 class="card-title fw-semibold">Mistério da Noite</h5>
+            <p class="card-text text-muted small">Suspense • 2023</p>
+            <a href="#" class="btn btn-outline-primary btn-sm w-100">Ver detalhes</a>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm">
+          <img src="#" class="card-img-top" alt="Filme 3">
+          <div class="card-body">
+            <h5 class="card-title fw-semibold">Coração Valente</h5>
+            <p class="card-text text-muted small">Drama • 2022</p>
+            <a href="#" class="btn btn-outline-primary btn-sm w-100">Ver detalhes</a>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm">
+          <img src="#" class="card-img-top" alt="Filme 4">
+          <div class="card-body">
+            <h5 class="card-title fw-semibold">Risos Infinitos</h5>
+            <p class="card-text text-muted small">Comédia • 2024</p>
+            <a href="#" class="btn btn-outline-primary btn-sm w-100">Ver detalhes</a>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm">
+          <img src="#" class="card-img-top" alt="Filme 5">
+          <div class="card-body">
+            <h5 class="card-title fw-semibold">O Último Guardião</h5>
+            <p class="card-text text-muted small">Fantasia • 2023</p>
+            <a href="#" class="btn btn-outline-primary btn-sm w-100">Ver detalhes</a>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm">
+          <img src="#" class="card-img-top" alt="Filme 6">
+          <div class="card-body">
+            <h5 class="card-title fw-semibold">Velocidade Máxima</h5>
+            <p class="card-text text-muted small">Ação • 2024</p>
+            <a href="#" class="btn btn-outline-primary btn-sm w-100">Ver detalhes</a>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm">
+          <img src="#" class="card-img-top" alt="Filme 7">
+          <div class="card-body">
+            <h5 class="card-title fw-semibold">Segredos do Passado</h5>
+            <p class="card-text text-muted small">Thriller • 2022</p>
+            <a href="#" class="btn btn-outline-primary btn-sm w-100">Ver detalhes</a>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm">
+          <img src="#" class="card-img-top" alt="Filme 8">
+          <div class="card-body">
+            <h5 class="card-title fw-semibold">Amor em Paris</h5>
+            <p class="card-text text-muted small">Romance • 2023</p>
+            <a href="#" class="btn btn-outline-primary btn-sm w-100">Ver detalhes</a>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm">
+          <img src="#" class="card-img-top" alt="Filme 9">
+          <div class="card-body">
+            <h5 class="card-title fw-semibold">Invasão Alienígena</h5>
+            <p class="card-text text-muted small">Ficção • 2024</p>
+            <a href="#" class="btn btn-outline-primary btn-sm w-100">Ver detalhes</a>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm">
+          <img src="#" class="card-img-top" alt="Filme 10">
+          <div class="card-body">
+            <h5 class="card-title fw-semibold">O Despertar</h5>
+            <p class="card-text text-muted small">Drama • 2023</p>
+            <a href="#" class="btn btn-outline-primary btn-sm w-100">Ver detalhes</a>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm">
+          <img src="#" class="card-img-top" alt="Filme 11">
+          <div class="card-body">
+            <h5 class="card-title fw-semibold">Caçada Noturna</h5>
+            <p class="card-text text-muted small">Ação • 2022</p>
+            <a href="#" class="btn btn-outline-primary btn-sm w-100">Ver detalhes</a>
+          </div>
+        </div>
+      </div>
+
+
+      <div class="col-12 col-sm-6 col-lg-3">
+        <div class="card border-0 shadow-sm">
+          <img src="#" class="card-img-top" alt="Filme 12">
+          <div class="card-body">
+            <h5 class="card-title fw-semibold">Lendas do Tempo</h5>
+            <p class="card-text text-muted small">Aventura • 2024</p>
+            <a href="#" class="btn btn-outline-primary btn-sm w-100">Ver detalhes</a>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
-</nav>
-  </div>
-</div>
-</div>
 
-
+</body>
+</html>
 {% block content %} {% endblock %}
 {% block footer %}
     {% include "footer.html" %}
