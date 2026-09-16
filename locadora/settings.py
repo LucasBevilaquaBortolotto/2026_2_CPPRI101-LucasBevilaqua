@@ -40,7 +40,7 @@ INSTALLED_APPS = [
     'bootstrap5',
 ]
 
-INSTALLED_APPS += ['home',]
+INSTALLED_APPS += ['home','filme']
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
