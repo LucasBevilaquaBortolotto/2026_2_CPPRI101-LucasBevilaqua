@@ -1,0 +1,66 @@
+{% extends 'principal.html' %}
+{% load django_bootstrap5 %}
+{% block content %}
+<div class="container py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <form action="" method="GET" class="input-group w-75">
+            <input class="form-control" type="text" name="buscar" value="{{ request.GET.buscar }}" placeholder="Buscar por cliente ou status...">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-search me-2"></i>Buscar</button>
+        </form>
+        <a href="{% url 'locacao_adicionar' %}" class="btn btn-success">
+            <i class="fas fa-cart-plus me-2"></i>Nova Locação
+        </a>
+    </div>
+
+    {% if locacoes %}
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body">
+            <h3 class="text-center mb-4 fw-bold text-dark">Locações Registadas</h3>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-success">
+                        <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>Funcionário</th>
+                            <th>Data da Locação</th>
+                            <th>Devolução Prevista</th>
+                            <th>Status</th>
+                            <th>Valor Total</th>
+                            <th class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for locacao in locacoes %}
+                        <tr>
+                            <td class="fw-bold">#{{ locacao.idLocacao }}</td>
+                            <td>{{ locacao.cliente.nome }}</td>
+                            <td>{{ locacao.funcionario.nome }}</td>
+                            <td>{{ locacao.dataLocacao|date:"d/m/Y" }}</td>
+                            <td>{{ locacao.dataDevol|date:"d/m/Y" }}</td>
+                            <td>
+                                <span class="badge {% if locacao.status == 'Aberta' %}bg-warning text-dark{% else %}bg-success{% endif %}">
+                                    {{ locacao.status }}
+                                </span>
+                            </td>
+                            <td class="text-success fw-medium">R$ {{ locacao.valor }}</td>
+                            <td class="text-center">
+                                <a class="text-warning fs-5" href="{% url 'locacao_editar' locacao.pk %}" title="Editar / Devolver">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex justify-content-center mt-4">
+        {% bootstrap_pagination page_obj size="sm" extra=request.GET.urlencode %}
+    </div>
+    {% else %}
+    <div class="alert alert-warning shadow-sm">Nenhuma locação encontrada.</div>
+    {% endif %}
+</div>
+{% endblock %}

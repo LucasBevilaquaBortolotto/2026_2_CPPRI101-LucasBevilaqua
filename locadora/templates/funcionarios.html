@@ -1,0 +1,59 @@
+{% extends 'principal.html' %}
+{% load django_bootstrap5 %}
+{% block content %}
+<div class="container py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <form action="" method="GET" class="input-group w-75">
+            <input class="form-control" type="text" name="buscar" value="{{ request.GET.buscar }}" placeholder="Buscar por nome, cargo ou e-mail...">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-search me-2"></i>Buscar</button>
+        </form>
+        <a href="{% url 'funcionario_adicionar' %}" class="btn btn-success">
+            <i class="fas fa-user-tie me-2"></i>Novo Funcionário
+        </a>
+    </div>
+
+    {% if funcionarios %}
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body">
+            <h3 class="text-center mb-4 fw-bold text-dark">Funcionários Registados</h3>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-success">
+                        <tr>
+                            <th>Nome</th>
+                            <th>Cargo</th>
+                            <th>Telefone</th>
+                            <th>E-mail</th>
+                            <th>Admissão</th>
+                            <th>Salário</th>
+                            <th class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for func in funcionarios %}
+                        <tr>
+                            <td class="fw-bold text-dark">{{ func.nome }}</td>
+                            <td><span class="badge bg-secondary">{{ func.cargo }}</span></td>
+                            <td>{{ func.fone }}</td>
+                            <td>{{ func.email }}</td>
+                            <td>{{ func.dataAdmissao|date:"d/m/Y" }}</td>
+                            <td class="text-success fw-medium">R$ {{ func.salario }}</td>
+                            <td class="text-center">
+                                <a class="text-warning fs-5 me-3" href="{% url 'funcionario_editar' func.pk %}" title="Editar"><i class="fas fa-edit"></i></a>
+                                <a class="text-danger fs-5" href="{% url 'funcionario_apagar' func.pk %}" title="Excluir"><i class="far fa-trash-alt"></i></a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex justify-content-center mt-4">
+        {% bootstrap_pagination page_obj size="sm" extra=request.GET.urlencode %}
+    </div>
+    {% else %}
+    <div class="alert alert-warning shadow-sm">Nenhum funcionário encontrado.</div>
+    {% endif %}
+</div>
+{% endblock %}

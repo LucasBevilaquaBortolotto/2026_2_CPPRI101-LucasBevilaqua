@@ -1,0 +1,58 @@
+{% extends 'principal.html' %}
+{% load django_bootstrap5 %}
+{% block content %}
+<div class="container py-3">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <form action="" method="GET" class="input-group w-75">
+            <input class="form-control" type="text" name="buscar" value="{{ request.GET.buscar }}" placeholder="Digite o título ou gênero do filme...">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-search me-2"></i>Buscar</button>
+        </form>
+        <a href="{% url 'filme_adicionar' %}" class="btn btn-success">
+            <i class="fas fa-plus-circle me-2"></i>Novo Filme
+        </a>
+    </div>
+
+    {% if filmes %}
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body">
+            <h3 class="text-center mb-4 fw-bold text-dark">Filmes Cadastrados</h3>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-success">
+                        <tr>
+                            <th>Título</th>
+                            <th>Gênero</th>
+                            <th>Ano</th>
+                            <th>Valor</th>
+                            <th>Estoque</th>
+                            <th class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for filme in filmes %}
+                        <tr>
+                            <td class="fw-bold text-dark">{{ filme.titulo }}</td>
+                            <td>{{ filme.genero }}</td>
+                            <td>{{ filme.anoLancamento }}</td>
+                            <td class="text-success fw-medium">R$ {{ filme.valor }}</td>
+                            <td><span class="badge bg-secondary">{{ filme.estoque }}</span></td>
+                            <td class="text-center">
+                                <a class="text-warning fs-5 me-3" href="{% url 'filme_editar' filme.pk %}" title="Editar"><i class="fas fa-edit"></i></a>
+                                <a class="text-danger fs-5" href="{% url 'filme_apagar' filme.pk %}" title="Excluir"><i class="far fa-trash-alt"></i></a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex justify-content-center mt-4">
+        {% bootstrap_pagination page_obj size="sm" extra=request.GET.urlencode %}
+    </div>
+    {% else %}
+    <div class="alert alert-warning shadow-sm">Nenhum filme encontrado.</div>
+    {% endif %}
+</div>
+{% endblock %}

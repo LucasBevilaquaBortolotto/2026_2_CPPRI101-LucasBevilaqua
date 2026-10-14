@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+{% load static %}
+{% load django_bootstrap5 %}
+<html lang="pt-br" data-bs-theme="light">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Locadora de Filmes</title>
+    {% bootstrap_css %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success p-3 shadow">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="#">Locadora</a>
+            <div class="collapse navbar-collapse">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item"><a class="nav-link" href="{% url 'home' %}">Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'filmes' %}">Filmes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'clientes' %}">Clientes</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'funcionarios' %}">Funcionários</a></li>
+                    <li class="nav-item"><a class="nav-link" href="{% url 'locacoes' %}">Locações</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    {% if messages %}
+        <div class="container mt-3">
+            {% bootstrap_messages %}
+        </div>
+    {% endif %}
+
+    <div class="container my-4">
+        {% block content %}{% endblock %}
+    </div>
+
+    {% bootstrap_javascript %}
+</body>
+</html>

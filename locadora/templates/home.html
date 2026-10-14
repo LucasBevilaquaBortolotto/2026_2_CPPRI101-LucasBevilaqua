@@ -1,0 +1,68 @@
+{% extends 'principal.html' %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+<div class="py-4">
+
+    <div class="p-5 mb-4 bg-light rounded-3 shadow-sm border text-center">
+        <div class="container-fluid py-3">
+            <h1 class="display-5 fw-bold text-success">
+                <i class="fas fa-film me-2"></i>Bem-vindo à Locadora
+            </h1>
+            <p class="col-md-8 fs-4 mx-auto text-muted">
+                Sistema de Gestão de Filmes, Clientes e Locações.
+            </p>
+            <div class="d-flex justify-content-center gap-3 mt-4">
+                <a class="btn btn-success btn-lg" href="{% url 'locacao_adicionar' %}">
+                    <i class="fas fa-cart-plus me-2"></i>Nova Locação
+                </a>
+                <a class="btn btn-outline-secondary btn-lg" href="{% url 'filme_adicionar' %}">
+                    <i class="fas fa-plus-circle me-2"></i>Cadastrar Filme
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="row g-4 text-center">
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0 rounded-3">
+                <div class="card-body p-4">
+                    <div class="fs-1 text-success mb-3">
+                        <i class="fas fa-compact-disc"></i>
+                    </div>
+                    <h4 class="card-title fw-bold">Catálogo de Filmes</h4>
+                    <p class="card-text text-muted">Gerencie o acervo de filmes, estoque, preços e classificações etárias.</p>
+                    <a href="{% url 'filmes' %}" class="btn btn-outline-success">Ver Filmes</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0 rounded-3">
+                <div class="card-body p-4">
+                    <div class="fs-1 text-primary mb-3">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    <h4 class="card-title fw-bold">Locações</h4>
+                    <p class="card-text text-muted">Consulte o histórico de devoluções, locações abertas e multas ativas.</p>
+                    <a href="{% url 'locacoes' %}" class="btn btn-outline-primary">Ver Locações</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0 rounded-3">
+                <div class="card-body p-4">
+                    <div class="fs-1 text-warning mb-3">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h4 class="card-title fw-bold">Clientes & Equipe</h4>
+                    <p class="card-text text-muted">Acesse o painel administrativo para gerir clientes e funcionários.</p>
+                    <a href="#" class="btn btn-outline-warning text-dark" >Painel Admin</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
