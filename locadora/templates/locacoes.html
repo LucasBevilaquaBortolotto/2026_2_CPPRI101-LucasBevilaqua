@@ -45,8 +45,11 @@
                             </td>
                             <td class="text-success fw-medium">R$ {{ locacao.valor }}</td>
                             <td class="text-center">
-                                <a class="text-warning fs-5" href="{% url 'locacao_editar' locacao.pk %}" title="Editar / Devolver">
+                                <a class="text-warning fs-5 me-3" href="{% url 'locacao_editar' locacao.pk %}" title="Editar / Devolver">
                                     <i class="fas fa-edit"></i>
+                                </a>
+                                <a class="text-danger fs-5" href="{% url 'locacao_apagar' locacao.pk %}" title="Excluir">
+                                    <i class="far fa-trash-alt"></i>
                                 </a>
                             </td>
                         </tr>

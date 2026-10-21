@@ -2,7 +2,9 @@ from django.urls import path
 from .views import (
     HomeView, FilmesView, FilmeAddView, FilmeUpdateView, FilmeDeleteView,
     LocacoesView, LocacaoAddView, LocacaoUpdateView, ClientesView, ClienteAddView, ClienteUpdateView,
-    FuncionariosView, FuncionarioAddView, FuncionarioUpdateView, FuncionarioDeleteView
+    FuncionariosView, FuncionarioAddView, FuncionarioUpdateView, FuncionarioDeleteView, ClienteDeleteView,
+    LocacaoDeleteView, MultasView, MultaUpdateView, MultaDeleteView, TransacoesView, TransacaoAddView, CaixaAddView,
+    CaixaUpdateView, CaixasView
 )
 
 urlpatterns = [
@@ -18,15 +20,31 @@ urlpatterns = [
     path('locacoes/', LocacoesView.as_view(), name='locacoes'),
     path('locacoes/nova/', LocacaoAddView.as_view(), name='locacao_adicionar'),
     path('locacoes/<int:pk>/editar/', LocacaoUpdateView.as_view(), name='locacao_editar'),
+    path('locacoes/<int:pk>/apagar/', LocacaoDeleteView.as_view(), name='locacao_apagar'),
 
     # Clientes
     path('clientes/', ClientesView.as_view(), name='clientes'),
     path('clientes/novo/', ClienteAddView.as_view(), name='cliente_adicionar'),
     path('clientes/<int:pk>/editar/', ClienteUpdateView.as_view(), name='cliente_editar'),
+    path('clientes/<int:pk>/apagar/', ClienteDeleteView.as_view(), name='cliente_apagar'),
 
     # Funcionários
     path('funcionarios/', FuncionariosView.as_view(), name='funcionarios'),
     path('funcionarios/novo/', FuncionarioAddView.as_view(), name='funcionario_adicionar'),
     path('funcionarios/<int:pk>/editar/', FuncionarioUpdateView.as_view(), name='funcionario_editar'),
     path('funcionarios/<int:pk>/apagar/', FuncionarioDeleteView.as_view(), name='funcionario_apagar'),
+
+    #Multa
+    path('multas/', MultasView.as_view(), name='multas'),
+    path('multas/<int:pk>/editar/', MultaUpdateView.as_view(), name='multa_editar'),
+    path('multas/<int:pk>/apagar/', MultaDeleteView.as_view(), name='multa_apagar'),
+
+    #Transação
+    path('transacoes/', TransacoesView.as_view(), name='transacoes'),
+    path('transacoes/nova/', TransacaoAddView.as_view(), name='transacao_adicionar'),
+
+    #Caixa
+    path('caixas/', CaixasView.as_view(), name='caixas'),
+    path('caixas/novo/', CaixaAddView.as_view(), name='caixa_adicionar'),
+    path('caixas/<int:pk>/editar/', CaixaUpdateView.as_view(), name='caixa_editar'),
 ]

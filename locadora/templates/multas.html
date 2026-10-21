@@ -1,0 +1,60 @@
+{% extends 'principal.html' %}
+{% load django_bootstrap5 %}
+{% block content %}
+<div class="container py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <form action="" method="GET" class="input-group w-75">
+            <input class="form-control" type="text" name="buscar" value="{{ request.GET.buscar }}" placeholder="Buscar por cliente ou status...">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-search me-2"></i>Buscar</button>
+        </form>
+    </div>
+
+    {% if multas %}
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body">
+            <h3 class="text-center mb-4 fw-bold text-dark">Multas Registadas</h3>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-success">
+                        <tr>
+                            <th>ID</th>
+                            <th>Cliente</th>
+                            <th>Locação</th>
+                            <th>Dias Atraso</th>
+                            <th>Valor</th>
+                            <th>Status</th>
+                            <th class="text-center">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for multa in multas %}
+                        <tr>
+                            <td class="fw-bold">#{{ multa.idMulta }}</td>
+                            <td>{{ multa.cliente.nome }}</td>
+                            <td>#{{ multa.locacao.idLocacao }}</td>
+                            <td>{{ multa.diasAtraso }} dias</td>
+                            <td class="text-danger fw-medium">R$ {{ multa.valor }}</td>
+                            <td>
+                                <span class="badge {% if multa.status == 'Pendente' %}bg-danger{% else %}bg-success{% endif %}">
+                                    {{ multa.status }}
+                                </span>
+                            </td>
+                            <td class="text-center">
+                                <a class="text-warning fs-5 me-3" href="{% url 'multa_editar' multa.pk %}" title="Editar / Pagar"><i class="fas fa-edit"></i></a>
+                                <a class="text-danger fs-5" href="{% url 'multa_apagar' multa.pk %}" title="Excluir"><i class="far fa-trash-alt"></i></a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex justify-content-center mt-4">
+        {% bootstrap_pagination page_obj size="sm" extra=request.GET.urlencode %}
+    </div>
+    {% else %}
+    <div class="alert alert-warning shadow-sm">Nenhuma multa encontrada.</div>
+    {% endif %}
+</div>
+{% endblock %}

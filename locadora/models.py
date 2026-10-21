@@ -51,7 +51,7 @@ class Filme(models.Model):
 class Locacao(models.Model):
     idLocacao = models.AutoField(primary_key=True)
     cliente = models.ForeignKey(Cliente, on_delete=models.PROTECT, verbose_name='Cliente')
-    funcionario = models.ForeignKey(Funcionario, on_delete=models.PROTECT, verbose_name='Funcionário')
+    funcionario = models.ForeignKey('Funcionario', on_delete=models.PROTECT, verbose_name='Funcionário', null=True, blank=True)
     filmes = models.ManyToManyField(Filme, through='LocacaoFilme', verbose_name='Filmes')
     dataLocacao = models.DateField('Data da Locação', auto_now_add=True)
     dataDevol = models.DateField('Data Prevista Devolução')
@@ -83,6 +83,9 @@ class Multa(models.Model):
         verbose_name = 'Multa'
         verbose_name_plural = 'Multas'
 
+    def __str__(self):
+        return f"Multa #{self.idMulta} - {self.cliente.nome} ({self.status})"
+
 class Caixa(models.Model):
     idCaixa = models.AutoField(primary_key=True)
     dataAbrir = models.DateField('Data de Abertura')
@@ -90,19 +93,77 @@ class Caixa(models.Model):
     saldoInicial = models.DecimalField('Saldo Inicial', max_digits=10, decimal_places=2)
     saldoFinal = models.DecimalField('Saldo Final', max_digits=10, decimal_places=2, default=0.0)
 
+
 class Transacao(models.Model):
-    id = models.AutoField(primary_key=True)
-    caixa = models.ForeignKey(Caixa, on_delete=models.PROTECT)
+    idTransacao = models.AutoField(primary_key=True)
+    caixa = models.ForeignKey(Caixa, on_delete=models.PROTECT, verbose_name='Caixa')
+    funcionario = models.ForeignKey('Funcionario', on_delete=models.PROTECT, verbose_name='Funcionário', null=True,blank=True)
+    tipo = models.CharField('Tipo', max_length=20)  # Ex: Entrada, Saída, Venda, Compra
+    descricao = models.TextField('Descrição')
     valor = models.DecimalField('Valor', max_digits=8, decimal_places=2)
-    data = models.DateField('Data', auto_now_add=True)
-    descricao = models.CharField('Descrição', max_length=200)
-    tipo = models.CharField('Tipo', max_length=20)
+    dataTransacao = models.DateTimeField('Data da Transação', auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Transação'
+        verbose_name_plural = 'Transações'
+
+    def __str__(self):
+        return f"{self.tipo} - R$ {self.valor}"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        # Atualiza o saldo final do caixa recalculando todas as transações vinculadas a ele
+        caixa = self.caixa
+        transacoes = caixa.transacao_set.all()
+
+        # Soma entradas e vendas
+        total_entradas = sum(t.valor for t in transacoes if t.tipo in ['Entrada', 'Venda'])
+        # Soma saídas e compras
+        total_saidas = sum(t.valor for t in transacoes if t.tipo in ['Saída', 'Compra'])
+
+        # Define o saldo final como: Saldo Inicial + Entradas - Saídas
+        caixa.saldoFinal = caixa.saldoInicial + total_entradas - total_saidas
+        caixa.save()
+
+class Caixa(models.Model):
+    idCaixa = models.AutoField(primary_key=True)
+    dataAbertura = models.DateTimeField('Data de Abertura', auto_now_add=True)
+    dataFechamento = models.DateTimeField('Data de Fechamento', null=True, blank=True)
+    saldoInicial = models.DecimalField('Valor Inicial', max_digits=10, decimal_places=2, default=0.00)
+    saldoFinal = models.DecimalField('Valor Final', max_digits=10, decimal_places=2, null=True, blank=True)
+    status = models.CharField('Status', max_length=20, default='Aberto')
+
+    class Meta:
+        verbose_name = 'Caixa'
+        verbose_name_plural = 'Caixas'
+
+    def __str__(self):
+        return f"Caixa #{self.idCaixa} - Status: {self.status}"
+
+
+class Transacao(models.Model):
+    idTransacao = models.AutoField(primary_key=True)
+    caixa = models.ForeignKey(Caixa, on_delete=models.PROTECT, verbose_name='Caixa')
+    funcionario = models.ForeignKey('Funcionario', on_delete=models.PROTECT, verbose_name='Funcionário', null=True, blank=True)
+    tipo = models.CharField('Tipo', max_length=20)  # Ex: Entrada, Saída, Venda, Compra
+    descricao = models.TextField('Descrição')
+    valor = models.DecimalField('Valor', max_digits=8, decimal_places=2)
+    dataTransacao = models.DateTimeField('Data da Transação', auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Transação'
+        verbose_name_plural = 'Transações'
+
+    def __str__(self):
+        return f"{self.tipo} - R$ {self.valor}"
 
 class CompraVendaFilmes(models.Model):
     id = models.AutoField(primary_key=True)
-    transacao = models.ForeignKey(Transacao, on_delete=models.PROTECT)
+    transacao = models.ForeignKey(Transacao, on_delete=models.CASCADE, verbose_name='Transação')
     filme = models.ForeignKey(Filme, on_delete=models.PROTECT)
     valor = models.DecimalField('Valor Unitário', max_digits=8, decimal_places=2)
     quantidade = models.IntegerField('Quantidade')
     fonecedor = models.CharField('Fornecedor', max_length=100)
     data = models.DateField('Data', auto_now_add=True)
+

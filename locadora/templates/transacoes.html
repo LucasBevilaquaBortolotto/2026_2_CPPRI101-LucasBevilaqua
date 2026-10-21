@@ -1,0 +1,60 @@
+{% extends 'principal.html' %}
+{% load django_bootstrap5 %}
+{% block content %}
+<div class="container py-3">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <form action="" method="GET" class="input-group w-75">
+            <input class="form-control" type="text" name="buscar" value="{{ request.GET.buscar }}" placeholder="Buscar por descrição ou tipo...">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-search me-2"></i>Buscar</button>
+        </form>
+        <a href="{% url 'transacao_adicionar' %}" class="btn btn-success">
+            <i class="fas fa-cash-register me-2"></i>Nova Transação / Venda
+        </a>
+    </div>
+
+    {% if transacoes %}
+    <div class="card shadow-sm border-0 rounded-3">
+        <div class="card-body">
+            <h3 class="text-center mb-4 fw-bold text-dark">Registo de Transações e Vendas</h3>
+            <div class="table-responsive">
+                <table class="table table-hover align-middle">
+                    <thead class="table-success">
+                        <tr>
+                            <th>ID</th>
+                            <th>Tipo</th>
+                            <th>Descrição</th>
+                            <th>Funcionário</th>
+                            <th>Data</th>
+                            <th>Valor</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in transacoes %}
+                        <tr>
+                            <td class="fw-bold">#{{ t.idTransacao }}</td>
+                            <td>
+                                <span class="badge {% if t.tipo == 'Entrada' or t.tipo == 'Venda' %}bg-success{% else %}bg-danger{% endif %}">
+                                    {{ t.tipo }}
+                                </span>
+                            </td>
+                            <td>{{ t.descricao }}</td>
+                            <td>{{ t.funcionario.nome }}</td>
+                            <td>{{ t.dataTransacao|date:"d/m/Y H:i" }}</td>
+                            <td class="fw-medium {% if t.tipo == 'Entrada' or t.tipo == 'Venda' %}text-success{% else %}text-danger{% endif %}">
+                                R$ {{ t.valor }}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="d-flex justify-content-center mt-4">
+        {% bootstrap_pagination page_obj size="sm" extra=request.GET.urlencode %}
+    </div>
+    {% else %}
+    <div class="alert alert-warning shadow-sm">Nenhuma transação encontrada.</div>
+    {% endif %}
+</div>
+{% endblock %}

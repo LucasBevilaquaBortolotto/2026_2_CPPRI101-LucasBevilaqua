@@ -1,6 +1,6 @@
 from django import forms
 from django.core.exceptions import ValidationError
-from .models import Locacao, Multa, Cliente, Funcionario
+from .models import Locacao, Multa, Cliente, Funcionario, Transacao, Caixa
 from datetime import date
 
 
@@ -83,3 +83,32 @@ class LocacaoUpdateModelForm(forms.ModelForm):
             locacao.save()
             self.save_m2m()
         return locacao
+
+class MultaModelForm(forms.ModelForm):
+    class Meta:
+        model = Multa
+        fields = ['cliente', 'locacao', 'valor', 'diasAtraso', 'status', 'dataPagamento']
+        widgets = {
+            'dataPagamento': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+class TransacaoModelForm(forms.ModelForm):
+    class Meta:
+        model = Transacao
+        fields = ['caixa', 'funcionario', 'tipo', 'descricao', 'valor']
+        widgets = {
+            'descricao': forms.Textarea(attrs={'rows': 3}),
+        }
+
+class CaixaModelForm(forms.ModelForm):
+    class Meta:
+        model = Caixa
+        fields = ['saldoInicial', 'status']
+
+class CaixaUpdateModelForm(forms.ModelForm):
+    class Meta:
+        model = Caixa
+        fields = ['saldoInicial', 'saldoFinal', 'dataFechamento', 'status']
+        widgets = {
+            'dataFechamento': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
+        }
