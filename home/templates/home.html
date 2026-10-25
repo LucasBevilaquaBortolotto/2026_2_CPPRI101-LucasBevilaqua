@@ -1,0 +1,35 @@
+{% extends 'principal.html' %}
+
+{% block content %}
+<div class="container mt-5 text-center">
+    <h1 class="display-4">Bem-vindo à Locadora de Filmes</h1>
+    <p class="lead">Alugue e assista os lançamentos!</p>
+    <hr>
+    <div class="row mt-5">
+        <div class="col-md-4">
+            <div class="card text-bg-success mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Clientes</h5>
+                    <a href="{% url 'clientes' %}" class="btn btn-light">Acessar</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-bg-primary mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Funcionários</h5>
+                    <a href="{% url 'funcionarios' %}" class="btn btn-light">Acessar</a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="card text-bg-warning mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Filmes</h5>
+                    <a href="{% url 'filmes' %}" class="btn btn-light">Acessar</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

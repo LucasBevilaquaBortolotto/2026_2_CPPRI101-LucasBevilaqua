@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Confirmação de Locação</title>
+</head>
+<body style="font-family: Arial, sans-serif;">
+    <h2 style="color: #198754;">Locadora de Filmes</h2>
+
+    <p>Olá <strong>{{ cliente.nome }}</strong>,</p>
+
+    <p>Sua locação <strong>#{{ locacao.id }}</strong> foi registrada com sucesso!</p>
+
+    <ul>
+        <li><strong>Data da Locação:</strong> {{ locacao.data_locacao|date:"d/m/Y" }}</li>
+        <li><strong>Data Prevista de Devolução:</strong> {{ locacao.data_devolucao|date:"d/m/Y" }}</li>
+        <li><strong>Valor Total:</strong> R$ {{ locacao.valor }}</li>
+    </ul>
+
+    <h4>Filmes locados:</h4>
+    <ul>
+        {% for item in locacao.locacaofilme_set.all %}
+            <li>{{ item.filme.titulo }} (quantidade: {{ item.quantidade }})</li>
+        {% empty %}
+            <li>Nenhum filme associado.</li>
+        {% endfor %}
+    </ul>
+
+    <p>Agradecemos a preferência! Volte sempre.</p>
+    <p><strong>Locadora de Filmes</strong></p>
+</body>
+</html>

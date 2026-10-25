@@ -1,0 +1,91 @@
+{% extends 'principal.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Locação #{{ locacao.id }}</h2>
+        <div>
+            {% if locacao.status == 'A' %}
+                <form method="post" action="{% url 'locacao_devolver' locacao.pk %}" class="d-inline">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success"
+                            onclick="return confirm('Confirmar devolução desta locação?')">
+                        <i class="bi bi-box-arrow-in-left"></i> Devolver Locação
+                    </button>
+                </form>
+            {% endif %}
+            <a href="{% url 'locacoes' %}" class="btn btn-secondary">Voltar</a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header bg-primary text-white">Dados da Locação</div>
+                <div class="card-body">
+                    <p><strong>Cliente:</strong> {{ locacao.cliente.nome }}</p>
+                    <p><strong>Funcionário:</strong> {{ locacao.funcionario.nome }}</p>
+                    <p><strong>Data Locação:</strong> {{ locacao.data_locacao|date:"d/m/Y" }}</p>
+                    <p><strong>Data Prevista Devolução:</strong> {{ locacao.data_devolucao|date:"d/m/Y" }}</p>
+                    <p><strong>Data Real Devolução:</strong>
+                        {% if locacao.real_data_devolucao %}
+                            {{ locacao.real_data_devolucao|date:"d/m/Y" }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </p>
+                    <p><strong>Status:</strong>
+                        {% if locacao.status == 'A' %}
+                            <span class="badge bg-primary">Aberta</span>
+                            {% if locacao.esta_atrasada %}
+                                <span class="badge bg-danger">Atrasada ({{ locacao.dias_atraso }} dias)</span>
+                            {% endif %}
+                        {% elif locacao.status == 'F' %}
+                            <span class="badge bg-success">Finalizada</span>
+                        {% else %}
+                            <span class="badge bg-secondary">Cancelada</span>
+                        {% endif %}
+                    </p>
+                    <p><strong>Valor da Locação:</strong> R$ {{ locacao.valor }}</p>
+                    <p><strong>Multa Aplicada:</strong> R$ {{ locacao.multa_aplicada }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card mb-3">
+                <div class="card-header bg-success text-white">Filmes Locados</div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for item in locacao.locacaofilme_set.all %}
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>{{ item.filme.titulo }}</span>
+                                <span class="badge bg-secondary">x{{ item.quantidade }}</span>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item">Nenhum filme associado.</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+
+            {% if locacao.multas.exists %}
+            <div class="card">
+                <div class="card-header bg-warning">Multas</div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        {% for multa in locacao.multas.all %}
+                            <li class="list-group-item">
+                                R$ {{ multa.valor }}
+                                ({{ multa.dias_atraso }} dias) -
+                                <strong>{{ multa.get_status_display }}</strong>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

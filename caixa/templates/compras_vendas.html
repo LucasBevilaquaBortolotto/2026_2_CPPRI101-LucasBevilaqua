@@ -1,0 +1,57 @@
+{% extends 'principal.html' %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Compras e Vendas de Filmes</h2>
+        <a href="{% url 'compra_venda_nova' %}" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Novo Registro
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead class="table-dark">
+                <tr>
+                    <th>#</th>
+                    <th>Filme</th>
+                    <th>Tipo</th>
+                    <th>Quantidade</th>
+                    <th>Valor Unitário</th>
+                    <th>Data</th>
+                    <th>Fornecedor</th>
+                    <th>Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in compras_vendas %}
+                <tr>
+                    <td>{{ item.id }}</td>
+                    <td>{{ item.filme.titulo }}</td>
+                    <td>
+                        {% if item.tipo == 'C' %}
+                            <span class="badge bg-primary">Compra</span>
+                        {% else %}
+                            <span class="badge bg-success">Venda</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ item.quantidade }}</td>
+                    <td>R$ {{ item.valor }}</td>
+                    <td>{{ item.data|date:"d/m/Y" }}</td>
+                    <td>{{ item.fornecedor|default:"-" }}</td>
+                    <td>
+                        <a href="{% url 'compra_venda_editar' item.pk %}" class="btn btn-sm btn-warning">Editar</a>
+                        <a href="{% url 'compra_venda_excluir' item.pk %}" class="btn btn-sm btn-danger">Excluir</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center">Nenhum registro de compra/venda.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

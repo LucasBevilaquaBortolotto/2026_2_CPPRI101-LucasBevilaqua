@@ -1,0 +1,15 @@
+Olá {{ cliente.nome }},
+
+Sua locação #{{ locacao.id }} foi registrada com sucesso!
+
+Data da Locação: {{ locacao.data_locacao|date:"d/m/Y" }}
+Data Prevista de Devolução: {{ locacao.data_devolucao|date:"d/m/Y" }}
+Valor Total: R$ {{ locacao.valor }}
+
+Filmes:
+{% for item in locacao.locacaofilme_set.all %}
+- {{ item.filme.titulo }} (x{{ item.quantidade }})
+{% endfor %}
+
+Agradecemos a preferência!
+Locadora de Filmes

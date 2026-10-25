@@ -1,0 +1,17 @@
+{% extends 'principal.html' %}
+{% load django_bootstrap5 %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>{% if form.instance.pk %}Editar Multa{% else %}Nova Multa{% endif %}</h2>
+
+    <form method="post" class="mt-4">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+        <div class="mt-3">
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <a href="{% url 'multas' %}" class="btn btn-secondary">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'principal.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="alert alert-danger">
+        <h4>Confirmar Exclusão</h4>
+        <p>Tem certeza que deseja excluir a transação <strong>#{{ object.id }}</strong> ({{ object.descricao }})?</p>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Sim, excluir</button>
+            <a href="{% url 'transacoes' %}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</div>
+{% endblock %}
