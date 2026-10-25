@@ -1,3 +1,29 @@
+4cfe31f
+
+ 
+
+Regras de Negócio
+
+• Limite de locação: Máximo 3 filmes por cliente.
+
+• Multa por atraso: 2 dias de locação, a cada dia a mais 5 reais de multa.
+
+• Restrição Idade: Filmes com classificação etária maior que 16, requer documento.
+
+• Disponibilidade: Filme só pode ser alugado se disponível.
+
+• Pendência: O cliente só pode alugar filmes se não tiver nenhuma pendência (Multa).
+
+
+
+
+
+
+
+
+
+
+
 24/09
 <img width="1177" height="848" alt="image" src="https://github.com/user-attachments/assets/c6241608-8d3d-4e38-b183-d6f9d5662f59" />
 
