@@ -8,8 +8,8 @@ Perdi o commit da primeira parte do projeto, o projeto está feito até o PDF 14
 
 
 
-4cfe31f
-
+commit 4cfe31f Primeira parte Avaliação
+O Diagrama UML é o do DIA 24/09
  
 
 Regras de Negócio
