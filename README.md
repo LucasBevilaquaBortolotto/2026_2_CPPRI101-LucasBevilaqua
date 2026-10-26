@@ -1,4 +1,4 @@
-Perdi o commit da primeira parte do projeto, o projeto está feito até o PDF 14 do django
+
 
 
 
