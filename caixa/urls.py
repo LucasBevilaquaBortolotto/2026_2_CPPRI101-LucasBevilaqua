@@ -11,7 +11,7 @@ urlpatterns = [
     path('caixas/novo/', CaixaCreateView.as_view(), name='caixa_novo'),
     path('caixas/editar/<int:pk>/', CaixaUpdateView.as_view(), name='caixa_editar'),
     path('caixas/excluir/<int:pk>/', CaixaDeleteView.as_view(), name='caixa_excluir'),
-    path('caixas/<int:pk>/', CaixaDetailView.as_view(), name='caixa_detail'),
+    path('caixas/<int:pk>/', CaixaDetailView.as_view(), name='caixa_detalhe'),
     path('caixas/<int:pk>/fechar/', CaixaFecharView.as_view(), name='caixa_fechar'),
 
     # Transações

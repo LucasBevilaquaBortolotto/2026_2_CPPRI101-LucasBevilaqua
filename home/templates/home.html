@@ -1,35 +1,250 @@
 {% extends 'principal.html' %}
 
+{% block title %}Dashboard - Locadora de Filmes{% endblock %}
+
 {% block content %}
-<div class="container mt-5 text-center">
-    <h1 class="display-4">Bem-vindo à Locadora de Filmes</h1>
-    <p class="lead">Alugue e assista os lançamentos!</p>
-    <hr>
-    <div class="row mt-5">
-        <div class="col-md-4">
-            <div class="card text-bg-success mb-3">
+<div class="container-fluid mt-4">
+
+    <!-- Título -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">
+            <i class="bi bi-speedometer2"></i> Dashboard
+        </h2>
+        <span class="text-muted">{{ now|date:"d/m/Y H:i" }}</span>
+    </div>
+
+    <!-- ===== CARDS PRINCIPAIS ===== -->
+    <div class="row g-3 mb-4">
+
+        <!-- Clientes -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 5px solid #0d6efd !important;">
                 <div class="card-body">
-                    <h5 class="card-title">Clientes</h5>
-                    <a href="{% url 'clientes' %}" class="btn btn-light">Acessar</a>
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted mb-1">Clientes</h6>
+                            <h3 class="mb-0">{{ total_clientes }}</h3>
+                            <small class="text-success">{{ clientes_ativos }} ativos</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-people fs-1 text-primary opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="{% url 'clientes' %}" class="text-decoration-none small">Ver clientes →</a>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card text-bg-primary mb-3">
+
+        <!-- Filmes -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 5px solid #198754 !important;">
                 <div class="card-body">
-                    <h5 class="card-title">Funcionários</h5>
-                    <a href="{% url 'funcionarios' %}" class="btn btn-light">Acessar</a>
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted mb-1">Filmes</h6>
+                            <h3 class="mb-0">{{ total_filmes }}</h3>
+                            <small class="text-success">{{ filmes_disponiveis }} disponíveis</small>
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-film fs-1 text-success opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="{% url 'filmes' %}" class="text-decoration-none small">Ver filmes →</a>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
-            <div class="card text-bg-warning mb-3">
+
+        <!-- Locações Abertas -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 5px solid #ffc107 !important;">
                 <div class="card-body">
-                    <h5 class="card-title">Filmes</h5>
-                    <a href="{% url 'filmes' %}" class="btn btn-light">Acessar</a>
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted mb-1">Locações Abertas</h6>
+                            <h3 class="mb-0">{{ locacoes_abertas }}</h3>
+                            {% if locacoes_atrasadas > 0 %}
+                                <small class="text-danger">{{ locacoes_atrasadas }} atrasadas</small>
+                            {% else %}
+                                <small class="text-success">Nenhuma atrasada</small>
+                            {% endif %}
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-calendar-check fs-1 text-warning opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="{% url 'locacoes' %}" class="text-decoration-none small">Ver locações →</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Caixa -->
+        <div class="col-xl-3 col-md-6">
+            <div class="card border-0 shadow-sm h-100" style="border-left: 5px solid #dc3545 !important;">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between">
+                        <div>
+                            <h6 class="text-muted mb-1">Saldo do Caixa</h6>
+                            <h3 class="mb-0">R$ {{ saldo_caixa_atual }}</h3>
+                            {% if caixa_aberto %}
+                                <small class="text-success">Caixa #{{ caixa_aberto.id }} aberto</small>
+                            {% else %}
+                                <small class="text-danger">Nenhum caixa aberto</small>
+                            {% endif %}
+                        </div>
+                        <div class="align-self-center">
+                            <i class="bi bi-cash-stack fs-1 text-danger opacity-50"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent border-0">
+                    <a href="{% url 'caixas' %}" class="text-decoration-none small">Ver caixas →</a>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- ===== SEGUNDA LINHA DE CARDS ===== -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="card text-center border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted">Funcionários</h6>
+                    <h3>{{ total_funcionarios }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted">Estoque Total</h6>
+                    <h3>{{ estoque_total }}</h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted">Multas Pendentes</h6>
+                    <h3 class="text-warning">{{ multas_pendentes }}</h3>
+                    <small>R$ {{ valor_multas_pendentes }}</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card text-center border-0 shadow-sm">
+                <div class="card-body">
+                    <h6 class="text-muted">Locações Finalizadas</h6>
+                    <h3 class="text-success">{{ locacoes_finalizadas }}</h3>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== TABELAS ===== -->
+    <div class="row g-4">
+
+        <!-- Últimas Locações -->
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Últimas Locações</h5>
+                    <a href="{% url 'locacoes' %}" class="btn btn-sm btn-outline-primary">Ver todas</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Cliente</th>
+                                    <th>Data</th>
+                                    <th>Valor</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for loc in ultimas_locacoes %}
+                                <tr>
+                                    <td>
+                                        <a href="{% url 'locacao_detalhe' loc.pk %}">{{ loc.id }}</a>
+                                    </td>
+                                    <td>{{ loc.cliente.nome }}</td>
+                                    <td>{{ loc.data_locacao|date:"d/m/Y" }}</td>
+                                    <td>R$ {{ loc.valor }}</td>
+                                    <td>
+                                        {% if loc.status == 'A' %}
+                                            <span class="badge bg-primary">Aberta</span>
+                                        {% elif loc.status == 'F' %}
+                                            <span class="badge bg-success">Finalizada</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Cancelada</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="5" class="text-center text-muted py-4">Nenhuma locação cadastrada</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Filmes com estoque baixo -->
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Filmes com Estoque Baixo</h5>
+                    <a href="{% url 'filmes' %}" class="btn btn-sm btn-outline-success">Ver todos</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Filme</th>
+                                    <th>Estoque</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for filme in filmes_estoque_baixo %}
+                                <tr>
+                                    <td>{{ filme.titulo }}</td>
+                                    <td>
+                                        <span class="badge bg-{% if filme.estoque == 0 %}danger{% else %}warning{% endif %}">
+                                            {{ filme.estoque }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        {% if filme.disponivel %}
+                                            <span class="text-success">Disponível</span>
+                                        {% else %}
+                                            <span class="text-danger">Indisponível</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% empty %}
+                                <tr>
+                                    <td colspan="3" class="text-center text-muted py-4">Todos os filmes com estoque ok</td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </div>
 {% endblock %}

@@ -149,7 +149,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # EMAIL_HOST = 'smtp.gmail.com'
 # EMAIL_PORT = 587
 # EMAIL_USE_TLS = True
-# EMAIL_HOST_USER = 'lucasbb6969@gmail.com'           # seu e-mail completo
-# EMAIL_HOST_PASSWORD = 'tnjylknswnpgvcvy'          # a senha de app (16 caracteres SEM espaços)
+# EMAIL_HOST_USER = 'lucasbb6969@gmail.com'
+# EMAIL_HOST_PASSWORD = 'tnjylknswnpgvcvy'
 # DEFAULT_FROM_EMAIL = 'lucasbb6969@gmail.com'
 
