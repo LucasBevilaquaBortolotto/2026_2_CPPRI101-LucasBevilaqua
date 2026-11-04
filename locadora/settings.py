@@ -153,3 +153,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 # EMAIL_HOST_PASSWORD = 'tnjylknswnpgvcvy'
 # DEFAULT_FROM_EMAIL = 'lucasbb6969@gmail.com'
 
+
+LOGIN_REDIRECT_URL = 'home'
+LOGIN_URL = 'login'
+LOGOUT_REDIRECT_URL = 'login'

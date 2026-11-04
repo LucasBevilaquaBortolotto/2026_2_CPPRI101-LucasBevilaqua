@@ -1,4 +1,5 @@
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
@@ -12,14 +13,16 @@ from .forms import CaixaModelForm, TransacaoModelForm, CompraVendaFilmeModelForm
 
 # ==================== CAIXA ====================
 
-class CaixaListView(ListView):
+class CaixaListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    permission_required = 'caixa.view_caixa'
     model = Caixa
     template_name = 'caixas.html'
     context_object_name = 'caixas'
     paginate_by = 10
 
 
-class CaixaCreateView(SuccessMessageMixin, CreateView):
+class CaixaCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
+    permission_required = 'caixa.add_caixa'
     model = Caixa
     form_class = CaixaModelForm
     template_name = 'caixa_form.html'
@@ -27,22 +30,25 @@ class CaixaCreateView(SuccessMessageMixin, CreateView):
     success_message = 'Caixa aberto com sucesso!'
 
 
-class CaixaUpdateView(SuccessMessageMixin, UpdateView):
+class CaixaUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
+    permission_required = 'caixa.change_caixa'
     model = Caixa
     form_class = CaixaModelForm
     template_name = 'caixa_form.html'
     success_url = reverse_lazy('caixas')
-    success_message = 'Caixa atualizado com sucesso!'
+    success_message = 'Caixa atualizado com sucesso"'
 
 
-class CaixaDeleteView(SuccessMessageMixin, DeleteView):
+class CaixaDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
+    permission_required = 'caixa.delete_caixa'
     model = Caixa
     template_name = 'caixa_delete.html'
     success_url = reverse_lazy('caixas')
     success_message = 'Caixa excluído com sucesso!'
 
 
-class CaixaDetailView(DetailView):
+class CaixaDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    permission_required = 'caixa.view_caixa'
     model = Caixa
     template_name = 'caixa_detalhe.html'
     context_object_name = 'caixa'
@@ -61,7 +67,8 @@ class CaixaDetailView(DetailView):
         context['saldo_atual'] = caixa.saldo_inicial + total_entradas - total_saidas
         return context
 
-class CaixaFecharView(View):
+class CaixaFecharView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'caixa.change_caixa'
     def post(self, request, pk):
         caixa = get_object_or_404(Caixa, pk=pk)
 
@@ -87,7 +94,8 @@ class CaixaFecharView(View):
 
 # ==================== TRANSAÇÕES ====================
 
-class TransacaoListView(ListView):
+class TransacaoListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    permission_required = 'caixa.view_transacao'
     model = Transacao
     template_name = 'transacoes.html'
     context_object_name = 'transacoes'
@@ -97,7 +105,8 @@ class TransacaoListView(ListView):
         return super().get_queryset().select_related('caixa')
 
 
-class TransacaoCreateView(SuccessMessageMixin, CreateView):
+class TransacaoCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
+    permission_required = 'caixa.add_transacao'
     model = Transacao
     form_class = TransacaoModelForm
     template_name = 'transacao_form.html'
@@ -105,7 +114,8 @@ class TransacaoCreateView(SuccessMessageMixin, CreateView):
     success_message = 'Transação registrada com sucesso!'
 
 
-class TransacaoUpdateView(SuccessMessageMixin, UpdateView):
+class TransacaoUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
+    permission_required = 'caixa.change_transacao'
     model = Transacao
     form_class = TransacaoModelForm
     template_name = 'transacao_form.html'
@@ -113,7 +123,8 @@ class TransacaoUpdateView(SuccessMessageMixin, UpdateView):
     success_message = 'Transação atualizada com sucesso!'
 
 
-class TransacaoDeleteView(SuccessMessageMixin, DeleteView):
+class TransacaoDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
+    permission_required = 'caixa.delete_transacao'
     model = Transacao
     template_name = 'transacao_delete.html'
     success_url = reverse_lazy('transacoes')
@@ -122,14 +133,16 @@ class TransacaoDeleteView(SuccessMessageMixin, DeleteView):
 
 # ==================== COMPRA / VENDA ====================
 
-class CompraVendaListView(ListView):
+class CompraVendaListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    permission_required = 'caixa.view_compravendafilme'
     model = CompraVendaFilme
     template_name = 'compras_vendas.html'
     context_object_name = 'compras_vendas'
     paginate_by = 15
 
 
-class CompraVendaCreateView(SuccessMessageMixin, CreateView):
+class CompraVendaCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
+    permission_required = 'caixa.add_compravendafilme'
     model = CompraVendaFilme
     form_class = CompraVendaFilmeModelForm
     template_name = 'compra_venda_form.html'
@@ -144,7 +157,8 @@ class CompraVendaCreateView(SuccessMessageMixin, CreateView):
         return super().form_valid(form)
 
 
-class CompraVendaUpdateView(SuccessMessageMixin, UpdateView):
+class CompraVendaUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
+    permission_required = 'caixa.change_compravendafilme'
     model = CompraVendaFilme
     form_class = CompraVendaFilmeModelForm
     template_name = 'compra_venda_form.html'
@@ -165,7 +179,8 @@ class CompraVendaUpdateView(SuccessMessageMixin, UpdateView):
         return super().form_valid(form)
 
 
-class CompraVendaDeleteView(SuccessMessageMixin, DeleteView):
+class CompraVendaDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
+    permission_required = 'caixa.delete_compravendafilme'
     model = CompraVendaFilme
     template_name = 'compra_venda_delete.html'
     success_url = reverse_lazy('compras_vendas')

@@ -1,5 +1,5 @@
 from decimal import Decimal
-
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
 
@@ -45,8 +45,24 @@ class Locacao(models.Model):
             return 0
         return (timezone.now().date() - self.data_devolucao).days
 
-    def devolver(self, valor_multa_por_dia=Decimal('5.00')):
+    def clean(self):
+        """Validações de regras de negócio"""
+        # Regra 5: Cliente não pode ter multa pendente
+        if self.cliente_id:
+            multas_pendentes = Multa.objects.filter(
+                locacao__cliente=self.cliente,
+                status='P'
+            ).exists()
+            if multas_pendentes:
+                raise ValidationError({
+                    'cliente': 'Este cliente possui multas pendentes e não pode realizar novas locações.'
+                })
 
+    def devolver(self, valor_multa_por_dia=Decimal('5.00')):
+        """
+        Realiza a devolução da locação.
+        Regra de Multa: 2 dias de tolerância, depois R$ 5,00 por dia.
+        """
         if self.status != 'A':
             raise ValueError('Só é possível devolver locações abertas.')
 
@@ -54,33 +70,35 @@ class Locacao(models.Model):
         self.real_data_devolucao = hoje
         self.status = 'F'
 
-
         multa_valor = Decimal('0.00')
         dias = 0
 
         if hoje > self.data_devolucao:
-            dias = (hoje - self.data_devolucao).days
-            multa_valor = Decimal(dias) * valor_multa_por_dia
-            self.multa_aplicada = multa_valor
+            dias_totais = (hoje - self.data_devolucao).days
+            # Regra: 2 dias de tolerância
+            dias_cobrados = max(0, dias_totais - 2)
 
+            if dias_cobrados > 0:
+                multa_valor = Decimal(dias_cobrados) * valor_multa_por_dia
+                self.multa_aplicada = multa_valor
 
-            Multa.objects.create(
-                locacao=self,
-                valor=multa_valor,
-                dias_atraso=dias,
-                status='P'
-            )
+                Multa.objects.create(
+                    locacao=self,
+                    valor=multa_valor,
+                    dias_atraso=dias_totais,
+                    status='P'
+                )
 
         self.save()
 
-
+        # Devolve os filmes ao estoque
         for item in self.locacaofilme_set.all():
             filme = item.filme
             filme.estoque += item.quantidade
             filme.disponivel = True
             filme.save()
 
-        return multa_valor, dias
+        return multa_valor, dias_totais if hoje > self.data_devolucao else 0
 
 
 class LocacaoFilme(models.Model):

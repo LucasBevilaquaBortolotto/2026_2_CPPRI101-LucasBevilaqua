@@ -1,7 +1,7 @@
 {% load static %}
 {% load django_bootstrap5 %}
 
-<!DOCTYPE html>
+
 <html lang="pt-br" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
@@ -57,52 +57,110 @@
 
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav me-auto">
+                    {% if request.user.is_authenticated %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'home' %}">Home</a>
                     </li>
+                    {% endif %}
 
 
+                    {% if perms.pessoas.view_cliente or perms.pessoas.view_funcionario %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             Pessoas
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'clientes' %}">Clientes</a></li>
-                            <li><a class="dropdown-item" href="{% url 'funcionarios' %}">Funcionários</a></li>
+                            {% if perms.pessoas.view_cliente %}
+                                <li><a class="dropdown-item" href="{% url 'clientes' %}">Clientes</a></li>
+                            {% endif %}
+                            {% if perms.pessoas.view_funcionario %}
+                                <li><a class="dropdown-item" href="{% url 'funcionarios' %}">Funcionários</a></li>
+                            {% endif %}
                         </ul>
                     </li>
+                    {% endif %}
 
 
+                    {% if perms.filmes.view_filme %}
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'filmes' %}">Filmes</a>
                     </li>
+                    {% endif %}
 
 
+                    {% if perms.locacoes.view_locacao or perms.locacoes.view_multa %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             Locações
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'locacoes' %}">Locações</a></li>
-                            <li><a class="dropdown-item" href="{% url 'multas' %}">Multas</a></li>
+                            {% if perms.locacoes.view_locacao %}
+                                <li><a class="dropdown-item" href="{% url 'locacoes' %}">Locações</a></li>
+                            {% endif %}
+                            {% if perms.locacoes.view_multa %}
+                                <li><a class="dropdown-item" href="{% url 'multas' %}">Multas</a></li>
+                            {% endif %}
                         </ul>
                     </li>
+                    {% endif %}
 
 
+                    {% if perms.caixa.view_caixa or perms.caixa.view_transacao or perms.caixa.view_compravendafilme %}
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                             Caixa
                         </a>
                         <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'caixas' %}">Caixas</a></li>
-                            <li><a class="dropdown-item" href="{% url 'transacoes' %}">Transações</a></li>
-                            <li><a class="dropdown-item" href="{% url 'compras_vendas' %}">Compra/Venda</a></li>
+                            {% if perms.caixa.view_caixa %}
+                                <li><a class="dropdown-item" href="{% url 'caixas' %}">Caixas</a></li>
+                            {% endif %}
+                            {% if perms.caixa.view_transacao %}
+                                <li><a class="dropdown-item" href="{% url 'transacoes' %}">Transações</a></li>
+                            {% endif %}
+                            {% if perms.caixa.view_compravendafilme %}
+                                <li><a class="dropdown-item" href="{% url 'compras_vendas' %}">Compras / Vendas</a></li>
+                            {% endif %}
                         </ul>
                     </li>
+                    {% endif %}
+
                 </ul>
-            </div>
+
+
+                <ul class="navbar-nav ms-auto">
+                {% if request.user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i> {{ request.user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'alterar_senha' %}">
+                                    <i class="bi bi-key"></i> Alterar senha
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form action="{% url 'logout' %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item text-danger">
+                                        <i class="bi bi-box-arrow-right"></i> Sair
+                                    </button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">
+                            <i class="bi bi-box-arrow-in-right"></i> Login
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
         </div>
-    </nav>
+    </div>
+</nav>
 
 
     <div class="container mt-3">

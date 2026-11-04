@@ -1,0 +1,33 @@
+{% extends 'principal.html' %}
+{% load django_bootstrap5 %}
+
+{% block title %}{{ titulo }} - Locadora de Filmes{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white text-center">
+                    <h4 class="mb-0">{{ titulo }}</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% bootstrap_form form %}
+                        <div class="d-grid gap-2 mt-3">
+                            <button type="submit" class="btn btn-success">
+                                {% if titulo == 'Alterar Senha' %}
+                                    Alterar Senha
+                                {% else %}
+                                    Entrar
+                                {% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

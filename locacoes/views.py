@@ -2,6 +2,7 @@ from decimal import Decimal
 
 from django.conf import settings
 from django.contrib import messages
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.mail import send_mail
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect
@@ -16,7 +17,8 @@ from .forms import LocacaoModelForm, MultaModelForm, LocacaoFilmeFormSet
 
 # ==================== LOCAÇÕES ====================
 
-class LocacaoListView(ListView):
+class LocacaoListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    permission_required = 'locacoes.view_locacao'
     model = Locacao
     template_name = 'locacoes.html'
     context_object_name = 'locacoes'
@@ -30,7 +32,8 @@ class LocacaoListView(ListView):
         return qs
 
 
-class LocacaoCreateView(SuccessMessageMixin, CreateView):
+class LocacaoCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
+    permission_required = 'locacoes.add_locacao'
     model = Locacao
     form_class = LocacaoModelForm
     template_name = 'locacao_form.html'
@@ -49,35 +52,63 @@ class LocacaoCreateView(SuccessMessageMixin, CreateView):
         context = self.get_context_data()
         formset = context['formset']
 
+        # Validação do formset
+        if not formset.is_valid():
+            return self.form_invalid(form)
+
+        # ===== REGRA 1: Máximo 3 filmes =====
+        total_filmes = 0
+        for f in formset:
+            if f.cleaned_data and not f.cleaned_data.get('DELETE', False):
+                total_filmes += f.cleaned_data.get('quantidade', 0)
+
+        if total_filmes > 3:
+            form.add_error(None, 'Não é permitido alugar mais de 3 filmes por locação.')
+            return self.form_invalid(form)
+
+        # ===== REGRA 3: Classificação etária > 16 exige documento =====
+        cliente = form.cleaned_data.get('cliente')
+        for f in formset:
+            if f.cleaned_data and not f.cleaned_data.get('DELETE', False):
+                filme = f.cleaned_data.get('filme')
+                if filme and filme.class_etaria and filme.class_etaria > 16:
+                    if not cliente.documento:
+                        form.add_error('cliente',
+                                       f'O filme "{filme.titulo}" tem classificação {filme.class_etaria} anos. '
+                                       'O cliente precisa ter documento cadastrado.'
+                                       )
+                        return self.form_invalid(form)
+
+        # ===== REGRA 5: Já validada no form, mas reforçamos =====
+        if Multa.objects.filter(locacao__cliente=cliente, status='P').exists():
+            form.add_error('cliente', 'Cliente possui multas pendentes.')
+            return self.form_invalid(form)
+
         with transaction.atomic():
             self.object = form.save(commit=False)
             self.object.valor = Decimal('0.00')
             self.object.save()
 
-            if formset.is_valid():
-                formset.instance = self.object
-                formset.save()
+            formset.instance = self.object
+            formset.save()
 
+            # Calcula valor e atualiza estoque
+            total = Decimal('0.00')
+            for item in self.object.locacaofilme_set.all():
+                total += item.filme.valor * item.quantidade
 
-                total = Decimal('0.00')
-                for item in self.object.locacaofilme_set.all():
-                    total += item.filme.valor * item.quantidade
+                filme = item.filme
+                filme.estoque -= item.quantidade
+                if filme.estoque <= 0:
+                    filme.disponivel = False
+                filme.save()
 
-                    filme = item.filme
-                    filme.estoque -= item.quantidade
-                    if filme.estoque <= 0:
-                        filme.disponivel = False
-                    filme.save()
+            self.object.valor = total
+            self.object.save()
 
-                self.object.valor = total
-                self.object.save()
+            self.enviar_email_locacao(self.object)
 
-
-                self.enviar_email_locacao(self.object)
-
-                return super().form_valid(form)
-            else:
-                return self.form_invalid(form)
+        return super().form_valid(form)
 
     def enviar_email_locacao(self, locacao):
         try:
@@ -104,7 +135,8 @@ class LocacaoCreateView(SuccessMessageMixin, CreateView):
             messages.warning(self.request, f'Locação salva, mas o e-mail não pôde ser enviado: {e}')
 
 
-class LocacaoUpdateView(SuccessMessageMixin, UpdateView):
+class LocacaoUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
+    permission_required = 'locacoes.change_locacao'
     model = Locacao
     form_class = LocacaoModelForm
     template_name = 'locacao_form.html'
@@ -143,51 +175,22 @@ class LocacaoUpdateView(SuccessMessageMixin, UpdateView):
                 return self.form_invalid(form)
 
 
-class LocacaoDeleteView(SuccessMessageMixin, DeleteView):
+class LocacaoDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
+    permission_required = 'locacoes.delete_locacao'
     model = Locacao
     template_name = 'locacao_delete.html'
     success_url = reverse_lazy('locacoes')
     success_message = 'Locação excluída com sucesso!'
 
 
-class LocacaoDetailView(DetailView):
+class LocacaoDetailView(LoginRequiredMixin, PermissionRequiredMixin, DetailView):
+    permission_required = 'locacoes.view_locacao'
     model = Locacao
     template_name = 'locacao_detalhe.html'
     context_object_name = 'locacao'
 
-
-# ==================== MULTAS ====================
-
-class MultaListView(ListView):
-    model = Multa
-    template_name = 'multas.html'
-    context_object_name = 'multas'
-    paginate_by = 10
-
-
-class MultaCreateView(SuccessMessageMixin, CreateView):
-    model = Multa
-    form_class = MultaModelForm
-    template_name = 'multa_form.html'
-    success_url = reverse_lazy('multas')
-    success_message = 'Multa cadastrada com sucesso!'
-
-
-class MultaUpdateView(SuccessMessageMixin, UpdateView):
-    model = Multa
-    form_class = MultaModelForm
-    template_name = 'multa_form.html'
-    success_url = reverse_lazy('multas')
-    success_message = 'Multa atualizada com sucesso!'
-
-
-class MultaDeleteView(SuccessMessageMixin, DeleteView):
-    model = Multa
-    template_name = 'multa_delete.html'
-    success_url = reverse_lazy('multas')
-    success_message = 'Multa excluída com sucesso!'
-
-class LocacaoDevolverView(View):
+class LocacaoDevolverView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'locacoes.change_locacao'
     def post(self, request, pk):
         locacao = get_object_or_404(Locacao, pk=pk)
 
@@ -210,3 +213,40 @@ class LocacaoDevolverView(View):
             messages.error(request, f'Erro ao devolver: {e}')
 
         return redirect('locacao_detalhe', pk=pk)
+
+
+# ==================== MULTAS ====================
+
+class MultaListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    permission_required = 'locacoes.view_multa'
+    model = Multa
+    template_name = 'multas.html'
+    context_object_name = 'multas'
+    paginate_by = 10
+
+
+class MultaCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
+    permission_required = 'locacoes.add_multa'
+    model = Multa
+    form_class = MultaModelForm
+    template_name = 'multa_form.html'
+    success_url = reverse_lazy('multas')
+    success_message = 'Multa cadastrada com sucesso!'
+
+
+class MultaUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
+    permission_required = 'locacoes.change_multa'
+    model = Multa
+    form_class = MultaModelForm
+    template_name = 'multa_form.html'
+    success_url = reverse_lazy('multas')
+    success_message = 'Multa atualizada com sucesso!'
+
+
+class MultaDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
+    permission_required = 'locacoes.delete_multa'
+    model = Multa
+    template_name = 'multa_delete.html'
+    success_url = reverse_lazy('multas')
+    success_message = 'Multa excluída com sucesso!'
+

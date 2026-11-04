@@ -1,3 +1,4 @@
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 from django.contrib.messages.views import SuccessMessageMixin
@@ -5,7 +6,8 @@ from .models import Filme
 from .forms import FilmeModelForm
 
 
-class FilmeListView(ListView):
+class FilmeListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
+    permission_required = 'filmes.view_filme'
     model = Filme
     template_name = 'filmes.html'
     context_object_name = 'filmes'
@@ -19,7 +21,8 @@ class FilmeListView(ListView):
         return qs
 
 
-class FilmeCreateView(SuccessMessageMixin, CreateView):
+class FilmeCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
+    permission_required = 'filmes.add_filme'
     model = Filme
     form_class = FilmeModelForm
     template_name = 'filme_form.html'
@@ -27,7 +30,8 @@ class FilmeCreateView(SuccessMessageMixin, CreateView):
     success_message = 'Filme cadastrado com sucesso!'
 
 
-class FilmeUpdateView(SuccessMessageMixin, UpdateView):
+class FilmeUpdateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, UpdateView):
+    permission_required = 'filmes.change_filme'
     model = Filme
     form_class = FilmeModelForm
     template_name = 'filme_form.html'
@@ -35,7 +39,8 @@ class FilmeUpdateView(SuccessMessageMixin, UpdateView):
     success_message = 'Filme atualizado com sucesso!'
 
 
-class FilmeDeleteView(SuccessMessageMixin, DeleteView):
+class FilmeDeleteView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, DeleteView):
+    permission_required = 'filmes.delete_filme'
     model = Filme
     template_name = 'filme_delete.html'
     success_url = reverse_lazy('filmes')
