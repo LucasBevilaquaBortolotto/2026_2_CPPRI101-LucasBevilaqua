@@ -1,12 +1,17 @@
+from decimal import Decimal
+
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.db import transaction
 from django.shortcuts import get_object_or_404, redirect
 from django.urls import reverse_lazy
+from django.utils import timezone
 from django.views import View
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.contrib.messages.views import SuccessMessageMixin
 from django.db.models import Sum, Q
+
+from locacoes.models import Multa, Locacao
 from .models import Caixa, Transacao, CompraVendaFilme
 from .forms import CaixaModelForm, TransacaoModelForm, CompraVendaFilmeModelForm
 
@@ -95,14 +100,39 @@ class CaixaFecharView(LoginRequiredMixin, PermissionRequiredMixin, View):
 # ==================== TRANSAÇÕES ====================
 
 class TransacaoListView(LoginRequiredMixin, PermissionRequiredMixin, ListView):
-    permission_required = 'caixa.view_transacao'
     model = Transacao
     template_name = 'transacoes.html'
     context_object_name = 'transacoes'
     paginate_by = 15
+    permission_required = 'caixa.view_transacao'
 
     def get_queryset(self):
         return super().get_queryset().select_related('caixa')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        # Só locações finalizadas que AINDA NÃO foram registradas no caixa
+        total_locacoes = Locacao.objects.filter(
+            status='F',
+            registrado_caixa=False
+        ).aggregate(total=Sum('valor'))['total'] or Decimal('0.00')
+
+        # Só multas pendentes
+        total_multas = Multa.objects.filter(
+            status='P'
+        ).aggregate(total=Sum('valor'))['total'] or Decimal('0.00')
+
+        total_geral = total_locacoes + total_multas
+
+        caixa_aberto = Caixa.objects.filter(data_fechar__isnull=True).first()
+
+        context['total_locacoes'] = total_locacoes
+        context['total_multas'] = total_multas
+        context['total_geral'] = total_geral
+        context['caixa_aberto'] = caixa_aberto
+
+        return context
 
 
 class TransacaoCreateView(LoginRequiredMixin, PermissionRequiredMixin, SuccessMessageMixin, CreateView):
@@ -191,3 +221,45 @@ class CompraVendaDeleteView(LoginRequiredMixin, PermissionRequiredMixin, Success
 
             self.object.atualizar_estoque(reverter=True)
             return super().form_valid(form)
+
+class GerarTransacaoLocacoesMultasView(LoginRequiredMixin, PermissionRequiredMixin, View):
+    permission_required = 'caixa.add_transacao'
+
+    def post(self, request):
+        caixa_aberto = Caixa.objects.filter(data_fechar__isnull=True).first()
+
+        if not caixa_aberto:
+            messages.error(request, 'Não existe nenhum caixa aberto. Abra um caixa antes de registrar a transação.')
+            return redirect('transacoes')
+
+        # Locações ainda não registradas
+        locacoes = Locacao.objects.filter(status='F', registrado_caixa=False)
+        total_locacoes = locacoes.aggregate(total=Sum('valor'))['total'] or Decimal('0.00')
+
+        # Multas pendentes
+        multas = Multa.objects.filter(status='P')
+        total_multas = multas.aggregate(total=Sum('valor'))['total'] or Decimal('0.00')
+
+        total_geral = total_locacoes + total_multas
+
+        if total_geral <= 0:
+            messages.warning(request, 'Não há valores de locações ou multas para registrar.')
+            return redirect('transacoes')
+
+        # Cria a transação
+        Transacao.objects.create(
+            caixa=caixa_aberto,
+            valor=total_geral,
+            data=timezone.now().date(),
+            descricao=f'Recebimento de Locações (R$ {total_locacoes}) + Multas (R$ {total_multas})',
+            tipo='E'
+        )
+
+        # Marca as locações como já registradas no caixa
+        locacoes.update(registrado_caixa=True)
+
+        # Marca as multas como pagas
+        multas.update(status='Q', data_pagamento=timezone.now().date())
+
+        messages.success(request, f'Transação criada com sucesso! Valor total: R$ {total_geral}')
+        return redirect('transacoes')

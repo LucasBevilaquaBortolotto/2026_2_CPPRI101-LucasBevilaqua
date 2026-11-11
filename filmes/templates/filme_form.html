@@ -1,17 +1,37 @@
 {% extends 'principal.html' %}
 {% load django_bootstrap5 %}
 
+{% block title %}
+    {% if form.instance.pk %}Editar{% else %}Novo{% endif %} - Locadora de Filmes
+{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
-    <h2>{% if form.instance.pk %}Editar Filme{% else %}Novo Filme{% endif %}</h2>
-
-    <form method="post" enctype="multipart/form-data" class="mt-4">
-        {% csrf_token %}
-        {% bootstrap_form form %}
-        <div class="mt-3">
-            <button type="submit" class="btn btn-primary">Salvar</button>
-            <a href="{% url 'filmes' %}" class="btn btn-secondary">Cancelar</a>
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-header bg-dark text-white py-3">
+                    <h4 class="mb-0">
+                        <i class="bi bi-{% if form.instance.pk %}pencil{% else %}plus-circle{% endif %}"></i>
+                        {% if form.instance.pk %}Editar{% else %}Cadastrar{% endif %}
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% bootstrap_form form %}
+                        <div class="d-flex gap-2 mt-4">
+                            <button type="submit" class="btn btn-accent">
+                                <i class="bi bi-check-lg"></i> Salvar
+                            </button>
+                            <a href="javascript:history.back()" class="btn btn-outline-secondary">
+                                Cancelar
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
         </div>
-    </form>
+    </div>
 </div>
 {% endblock %}

@@ -1,80 +1,89 @@
 {% extends 'principal.html' %}
 {% load django_bootstrap5 %}
 
+{% block title %}Filmes - Locadora de Filmes{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Filmes</h2>
-        <a href="{% url 'filme_novo' %}" class="btn btn-success">
+        <div>
+            <h2 class="fw-bold mb-0">Filmes</h2>
+            <p class="text-muted mb-0">Catálogo da locadora</p>
+        </div>
+        {% if perms.filmes.add_filme %}
+        <a href="{% url 'filme_novo' %}" class="btn btn-accent">
             <i class="bi bi-plus-circle"></i> Novo Filme
         </a>
+        {% endif %}
     </div>
 
-
-    <form method="get" class="mb-4">
-        <div class="input-group">
-            <input type="text" name="buscar" class="form-control" placeholder="Buscar por título..." value="{{ request.GET.buscar }}">
-            <button class="btn btn-primary" type="submit">Buscar</button>
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" class="row g-2">
+                <div class="col-md-10">
+                    <input type="text" name="buscar" class="form-control" placeholder="Buscar por título ou gênero..." value="{{ request.GET.buscar }}">
+                </div>
+                <div class="col-md-2">
+                    <button class="btn btn-primary w-100" type="submit"><i class="bi bi-search"></i> Buscar</button>
+                </div>
+            </form>
         </div>
-    </form>
-
-    <div class="table-responsive">
-        <table class="table table-striped table-hover">
-            <thead class="table-dark">
-                <tr>
-                    <th>Título</th>
-                    <th>Gênero</th>
-                    <th>Ano</th>
-                    <th>Classificação</th>
-                    <th>Valor</th>
-                    <th>Estoque</th>
-                    <th>Disponível</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for filme in filmes %}
-                <tr>
-                    <td>{{ filme.titulo }}</td>
-                    <td>{{ filme.genero }}</td>
-                    <td>{{ filme.ano_lancamento }}</td>
-                    <td>{{ filme.class_etaria }}+</td>
-                    <td>R$ {{ filme.valor }}</td>
-                    <td>{{ filme.estoque }}</td>
-                    <td>
-                        {% if filme.disponivel %}
-                            <span class="badge bg-success">Sim</span>
-                        {% else %}
-                            <span class="badge bg-danger">Não</span>
-                        {% endif %}
-                    </td>
-                    <td>
-                        <a href="{% url 'filme_editar' filme.pk %}" class="btn btn-sm btn-warning">Editar</a>
-                        <a href="{% url 'filme_excluir' filme.pk %}" class="btn btn-sm btn-danger">Excluir</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="8" class="text-center">Nenhum filme cadastrado.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
     </div>
 
-
-    {% if page_obj.has_other_pages %}
-    <nav>
-        <ul class="pagination justify-content-center">
-            {% if page_obj.has_previous %}
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
-            {% endif %}
-            <li class="page-item disabled"><span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
-            {% if page_obj.has_next %}
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
-            {% endif %}
-        </ul>
-    </nav>
-    {% endif %}
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>Título</th>
+                            <th>Gênero</th>
+                            <th>Ano</th>
+                            <th>Class.</th>
+                            <th>Valor</th>
+                            <th>Estoque</th>
+                            <th>Status</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for filme in filmes %}
+                        <tr>
+                            <td class="fw-semibold">{{ filme.titulo }}</td>
+                            <td>{{ filme.genero }}</td>
+                            <td>{{ filme.ano_lancamento }}</td>
+                            <td>{{ filme.class_etaria }}+</td>
+                            <td>R$ {{ filme.valor }}</td>
+                            <td>
+                                <span class="badge bg-{% if filme.estoque == 0 %}danger{% elif filme.estoque <= 2 %}warning{% else %}success{% endif %}">
+                                    {{ filme.estoque }}
+                                </span>
+                            </td>
+                            <td>
+                                {% if filme.disponivel %}
+                                    <span class="badge bg-success">Disponível</span>
+                                {% else %}
+                                    <span class="badge bg-secondary">Indisponível</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                {% if perms.filmes.change_filme %}
+                                <a href="{% url 'filme_editar' filme.pk %}" class="btn btn-sm btn-outline-warning"><i class="bi bi-pencil"></i></a>
+                                {% endif %}
+                                {% if perms.filmes.delete_filme %}
+                                <a href="{% url 'filme_excluir' filme.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-5">Nenhum filme cadastrado.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

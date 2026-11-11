@@ -1,69 +1,106 @@
 {% extends 'principal.html' %}
 
+{% block title %}Locação #{{ locacao.id }} - Locadora de Filmes{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Locação #{{ locacao.id }}</h2>
         <div>
-            {% if locacao.status == 'A' %}
-                <form method="post" action="{% url 'locacao_devolver' locacao.pk %}" class="d-inline">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-success"
-                            onclick="return confirm('Confirmar devolução desta locação?')">
-                        <i class="bi bi-box-arrow-in-left"></i> Devolver Locação
-                    </button>
-                </form>
+            <h2 class="fw-bold mb-0">Locação #{{ locacao.id }}</h2>
+            <p class="text-muted mb-0">Detalhes completos da locação</p>
+        </div>
+        <div class="d-flex gap-2">
+            {% if locacao.status == 'A' and perms.locacoes.change_locacao %}
+            <form method="post" action="{% url 'locacao_devolver' locacao.pk %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-success"
+                        onclick="return confirm('Confirmar devolução desta locação?')">
+                    <i class="bi bi-box-arrow-in-left"></i> Devolver
+                </button>
+            </form>
             {% endif %}
-            <a href="{% url 'locacoes' %}" class="btn btn-secondary">Voltar</a>
+            <a href="{% url 'locacoes' %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Voltar
+            </a>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-md-6">
-            <div class="card mb-3">
-                <div class="card-header bg-primary text-white">Dados da Locação</div>
+    <div class="row g-4">
+        <!-- Dados principais -->
+        <div class="col-lg-6">
+            <div class="card h-100">
+                <div class="card-header bg-dark text-white">
+                    <i class="bi bi-info-circle"></i> Dados da Locação
+                </div>
                 <div class="card-body">
-                    <p><strong>Cliente:</strong> {{ locacao.cliente.nome }}</p>
-                    <p><strong>Funcionário:</strong> {{ locacao.funcionario.nome }}</p>
-                    <p><strong>Data Locação:</strong> {{ locacao.data_locacao|date:"d/m/Y" }}</p>
-                    <p><strong>Data Prevista Devolução:</strong> {{ locacao.data_devolucao|date:"d/m/Y" }}</p>
-                    <p><strong>Data Real Devolução:</strong>
-                        {% if locacao.real_data_devolucao %}
-                            {{ locacao.real_data_devolucao|date:"d/m/Y" }}
-                        {% else %}
-                            -
-                        {% endif %}
-                    </p>
-                    <p><strong>Status:</strong>
-                        {% if locacao.status == 'A' %}
-                            <span class="badge bg-primary">Aberta</span>
-                            {% if locacao.esta_atrasada %}
-                                <span class="badge bg-danger">Atrasada ({{ locacao.dias_atraso }} dias)</span>
+                    <div class="row mb-3">
+                        <div class="col-5 text-muted">Cliente</div>
+                        <div class="col-7 fw-semibold">{{ locacao.cliente.nome }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-5 text-muted">Funcionário</div>
+                        <div class="col-7">{{ locacao.funcionario.nome }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-5 text-muted">Data Locação</div>
+                        <div class="col-7">{{ locacao.data_locacao|date:"d/m/Y" }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-5 text-muted">Devolução Prevista</div>
+                        <div class="col-7">{{ locacao.data_devolucao|date:"d/m/Y" }}</div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-5 text-muted">Devolução Real</div>
+                        <div class="col-7">
+                            {% if locacao.real_data_devolucao %}
+                                {{ locacao.real_data_devolucao|date:"d/m/Y" }}
+                            {% else %}
+                                <span class="text-muted">-</span>
                             {% endif %}
-                        {% elif locacao.status == 'F' %}
-                            <span class="badge bg-success">Finalizada</span>
-                        {% else %}
-                            <span class="badge bg-secondary">Cancelada</span>
-                        {% endif %}
-                    </p>
-                    <p><strong>Valor da Locação:</strong> R$ {{ locacao.valor }}</p>
-                    <p><strong>Multa Aplicada:</strong> R$ {{ locacao.multa_aplicada }}</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-5 text-muted">Status</div>
+                        <div class="col-7">
+                            {% if locacao.status == 'A' %}
+                                <span class="badge bg-primary">Aberta</span>
+                                {% if locacao.esta_atrasada %}
+                                    <span class="badge bg-danger">Atrasada ({{ locacao.dias_atraso }} dias)</span>
+                                {% endif %}
+                            {% elif locacao.status == 'F' %}
+                                <span class="badge bg-success">Finalizada</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Cancelada</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-5 text-muted">Valor</div>
+                        <div class="col-7 fw-bold">R$ {{ locacao.valor }}</div>
+                    </div>
+                    <div class="row">
+                        <div class="col-5 text-muted">Multa Aplicada</div>
+                        <div class="col-7">R$ {{ locacao.multa_aplicada }}</div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="col-md-6">
-            <div class="card mb-3">
-                <div class="card-header bg-success text-white">Filmes Locados</div>
-                <div class="card-body">
+        <!-- Filmes e Multas -->
+        <div class="col-lg-6">
+            <div class="card mb-4">
+                <div class="card-header bg-dark text-white">
+                    <i class="bi bi-film"></i> Filmes Locados
+                </div>
+                <div class="card-body p-0">
                     <ul class="list-group list-group-flush">
                         {% for item in locacao.locacaofilme_set.all %}
-                            <li class="list-group-item d-flex justify-content-between">
-                                <span>{{ item.filme.titulo }}</span>
-                                <span class="badge bg-secondary">x{{ item.quantidade }}</span>
-                            </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <span>{{ item.filme.titulo }}</span>
+                            <span class="badge bg-secondary">x{{ item.quantidade }}</span>
+                        </li>
                         {% empty %}
-                            <li class="list-group-item">Nenhum filme associado.</li>
+                        <li class="list-group-item text-muted">Nenhum filme associado.</li>
                         {% endfor %}
                     </ul>
                 </div>
@@ -71,15 +108,16 @@
 
             {% if locacao.multas.exists %}
             <div class="card">
-                <div class="card-header bg-warning">Multas</div>
-                <div class="card-body">
+                <div class="card-header bg-warning text-dark">
+                    <i class="bi bi-exclamation-triangle"></i> Multas
+                </div>
+                <div class="card-body p-0">
                     <ul class="list-group list-group-flush">
                         {% for multa in locacao.multas.all %}
-                            <li class="list-group-item">
-                                R$ {{ multa.valor }}
-                                ({{ multa.dias_atraso }} dias) -
-                                <strong>{{ multa.get_status_display }}</strong>
-                            </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>R$ {{ multa.valor }} ({{ multa.dias_atraso }} dias)</span>
+                            <strong>{{ multa.get_status_display }}</strong>
+                        </li>
                         {% endfor %}
                     </ul>
                 </div>

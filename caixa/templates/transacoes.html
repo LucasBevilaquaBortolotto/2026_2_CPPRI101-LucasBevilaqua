@@ -1,69 +1,134 @@
 {% extends 'principal.html' %}
 {% load django_bootstrap5 %}
 
+{% block title %}Transações - Locadora de Filmes{% endblock %}
+
 {% block content %}
 <div class="container mt-4">
+
+    <!-- Cabeçalho -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Transações</h2>
-        <a href="{% url 'transacao_nova' %}" class="btn btn-success">
+        <div>
+            <h2 class="fw-bold mb-0">Transações</h2>
+            <p class="text-muted mb-0">Movimentações de caixa</p>
+        </div>
+        {% if perms.caixa.add_transacao %}
+        <a href="{% url 'transacao_nova' %}" class="btn btn-accent">
             <i class="bi bi-plus-circle"></i> Nova Transação
         </a>
+        {% endif %}
     </div>
 
-    <div class="table-responsive">
-        <table class="table table-striped table-hover">
-            <thead class="table-dark">
-                <tr>
-                    <th>#</th>
-                    <th>Caixa</th>
-                    <th>Data</th>
-                    <th>Descrição</th>
-                    <th>Tipo</th>
-                    <th>Valor</th>
-                    <th>Ações</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for t in transacoes %}
-                <tr>
-                    <td>{{ t.id }}</td>
-                    <td>Caixa #{{ t.caixa.id }}</td>
-                    <td>{{ t.data|date:"d/m/Y" }}</td>
-                    <td>{{ t.descricao }}</td>
-                    <td>
-                        {% if t.tipo == 'E' %}
-                            <span class="badge bg-success">Entrada</span>
+    <!-- ===== ÁREA DE RESUMO (Locações + Multas) ===== -->
+    <div class="card mb-4 border-0 shadow-sm">
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-calculator"></i> Resumo para Recebimento</span>
+            {% if caixa_aberto %}
+                <span class="badge bg-success">Caixa #{{ caixa_aberto.id }} aberto</span>
+            {% else %}
+                <span class="badge bg-danger">Nenhum caixa aberto</span>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            <div class="row g-3 align-items-center">
+                <div class="col-md-3">
+                    <div class="p-3 rounded bg-primary bg-opacity-10 text-center">
+                        <small class="text-muted d-block">Total Locações</small>
+                        <h4 class="mb-0 fw-bold text-primary">R$ {{ total_locacoes }}</h4>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 rounded bg-warning bg-opacity-10 text-center">
+                        <small class="text-muted d-block">Total Multas</small>
+                        <h4 class="mb-0 fw-bold text-warning">R$ {{ total_multas }}</h4>
+                    </div>
+                </div>
+                <div class="col-md-3">
+                    <div class="p-3 rounded bg-success bg-opacity-10 text-center">
+                        <small class="text-muted d-block">Soma Total</small>
+                        <h4 class="mb-0 fw-bold text-success">R$ {{ total_geral }}</h4>
+                    </div>
+                </div>
+                <div class="col-md-3 text-center">
+                    {% if perms.caixa.add_transacao %}
+                        {% if caixa_aberto and total_geral > 0 %}
+                        <form method="post" action="{% url 'gerar_transacao_locacoes_multas' %}">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success btn-lg w-100"
+                                    onclick="return confirm('Criar transação de entrada com R$ {{ total_geral }}?')">
+                                <i class="bi bi-cash-coin"></i><br>
+                                Registrar no Caixa
+                            </button>
+                        </form>
                         {% else %}
-                            <span class="badge bg-danger">Saída</span>
+                        <button class="btn btn-secondary btn-lg w-100" disabled>
+                            <i class="bi bi-cash-coin"></i><br>
+                            {% if not caixa_aberto %}
+                                Abra um caixa
+                            {% else %}
+                                Sem valores
+                            {% endif %}
+                        </button>
                         {% endif %}
-                    </td>
-                    <td>R$ {{ t.valor }}</td>
-                    <td>
-                        <a href="{% url 'transacao_editar' t.pk %}" class="btn btn-sm btn-warning">Editar</a>
-                        <a href="{% url 'transacao_excluir' t.pk %}" class="btn btn-sm btn-danger">Excluir</a>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="7" class="text-center">Nenhuma transação registrada.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
     </div>
 
-    {% if page_obj.has_other_pages %}
-    <nav>
-        <ul class="pagination justify-content-center">
-            {% if page_obj.has_previous %}
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.previous_page_number }}">Anterior</a></li>
-            {% endif %}
-            <li class="page-item disabled"><span class="page-link">Página {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}</span></li>
-            {% if page_obj.has_next %}
-                <li class="page-item"><a class="page-link" href="?page={{ page_obj.next_page_number }}">Próxima</a></li>
-            {% endif %}
-        </ul>
-    </nav>
-    {% endif %}
+    <!-- Lista de Transações -->
+    <div class="card">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Caixa</th>
+                            <th>Data</th>
+                            <th>Descrição</th>
+                            <th>Tipo</th>
+                            <th>Valor</th>
+                            <th class="text-end">Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for t in transacoes %}
+                        <tr>
+                            <td class="fw-semibold">{{ t.id }}</td>
+                            <td>Caixa #{{ t.caixa.id }}</td>
+                            <td>{{ t.data|date:"d/m/Y" }}</td>
+                            <td>{{ t.descricao }}</td>
+                            <td>
+                                {% if t.tipo == 'E' %}
+                                    <span class="badge bg-success">Entrada</span>
+                                {% else %}
+                                    <span class="badge bg-danger">Saída</span>
+                                {% endif %}
+                            </td>
+                            <td>R$ {{ t.valor }}</td>
+                            <td class="text-end">
+                                {% if perms.caixa.change_transacao %}
+                                <a href="{% url 'transacao_editar' t.pk %}" class="btn btn-sm btn-outline-warning">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                {% endif %}
+                                {% if perms.caixa.delete_transacao %}
+                                <a href="{% url 'transacao_excluir' t.pk %}" class="btn btn-sm btn-outline-danger">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="7" class="text-center text-muted py-5">Nenhuma transação registrada.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

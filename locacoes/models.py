@@ -22,7 +22,7 @@ class Locacao(models.Model):
     valor = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Valor Total')
     status = models.CharField(max_length=1, choices=STATUS_CHOICES, default='A', verbose_name='Status')
     multa_aplicada = models.DecimalField(max_digits=10, decimal_places=2, default=0, verbose_name='Multa Aplicada')
-
+    registrado_caixa = models.BooleanField(default=False, verbose_name='Registrado no Caixa')
     filmes = models.ManyToManyField(Filme, through='LocacaoFilme', related_name='locacoes')
 
     class Meta:
@@ -137,3 +137,5 @@ class Multa(models.Model):
 
     def __str__(self):
         return f'Multa #{self.id} - Locação {self.locacao.id} - R$ {self.valor}'
+
+registrado_caixa = models.BooleanField(default=False, verbose_name='Registrado no Caixa')

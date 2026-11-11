@@ -2,7 +2,8 @@ from django.urls import path
 from .views import (
     CaixaListView, CaixaCreateView, CaixaUpdateView, CaixaDeleteView, CaixaDetailView,
     TransacaoListView, TransacaoCreateView, TransacaoUpdateView, TransacaoDeleteView,
-    CompraVendaListView, CompraVendaCreateView, CompraVendaUpdateView, CompraVendaDeleteView, CaixaFecharView
+    CompraVendaListView, CompraVendaCreateView, CompraVendaUpdateView, CompraVendaDeleteView, CaixaFecharView,
+    GerarTransacaoLocacoesMultasView
 )
 
 urlpatterns = [
@@ -25,4 +26,7 @@ urlpatterns = [
     path('compras-vendas/nova/', CompraVendaCreateView.as_view(), name='compra_venda_nova'),
     path('compras-vendas/editar/<int:pk>/', CompraVendaUpdateView.as_view(), name='compra_venda_editar'),
     path('compras-vendas/excluir/<int:pk>/', CompraVendaDeleteView.as_view(), name='compra_venda_excluir'),
+
+    # Transação/ Locação/ Multas
+    path('transacoes/gerar-locacoes-multas/', GerarTransacaoLocacoesMultasView.as_view(), name='gerar_transacao_locacoes_multas'),
 ]
