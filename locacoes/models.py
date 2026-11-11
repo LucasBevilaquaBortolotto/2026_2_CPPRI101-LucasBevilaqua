@@ -46,7 +46,7 @@ class Locacao(models.Model):
         return (timezone.now().date() - self.data_devolucao).days
 
     def clean(self):
-        """Validações de regras de negócio"""
+
         # Regra 5: Cliente não pode ter multa pendente
         if self.cliente_id:
             multas_pendentes = Multa.objects.filter(
@@ -59,10 +59,7 @@ class Locacao(models.Model):
                 })
 
     def devolver(self, valor_multa_por_dia=Decimal('5.00')):
-        """
-        Realiza a devolução da locação.
-        Regra de Multa: 2 dias de tolerância, depois R$ 5,00 por dia.
-        """
+
         if self.status != 'A':
             raise ValueError('Só é possível devolver locações abertas.')
 
